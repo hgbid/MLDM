@@ -29,8 +29,16 @@ clean_df['condition'] = raw_df['AssetClassificationID_text'].apply(lambda x: con
 clean_df['latitude'], clean_df['longitude'] = zip(*raw_df['coordinates'].apply(lambda x: extract_coordinates(x) if pd.notnull(x) else (0, 0)))
 
 
+# #############################################
 # Feature Engineering
 clean_df['price_per_sqm'] = clean_df['price']/clean_df['square_meters']
 
+
+
+# #############################################
+# Feature Engineering
+
+
 clean_df.to_csv('cleaned_data.csv', index=False)
 print(clean_df)
+
