@@ -1,7 +1,7 @@
 import pandas as pd
 from utils import *
 
-['feed_source', 'HomeTypeID_text', 'date_added' , 'search_text']
+['feed_source', 'HomeTypeID_text', 'date_added' ]
 
 try:
     raw_df = pd.read_csv('Yad2Dataset.csv', encoding='utf-8')
@@ -28,11 +28,13 @@ clean_df['condition'] = raw_df['AssetClassificationID_text'].apply(lambda x: con
 # Coordinates
 clean_df['latitude'], clean_df['longitude'] = zip(*raw_df['coordinates'].apply(lambda x: extract_coordinates(x) if pd.notnull(x) else (0, 0)))
 
+# DM from text: safe_room, elevator, parking, bars, air_conditioning, air_conditioner, accessible, furniture
+features_df = raw_df['search_text'].apply(lambda x: pd.Series(get_data_from_search_text(x)))
+clean_df = pd.concat([clean_df, features_df], axis=1)
 
 # #############################################
 # Feature Engineering
 clean_df['price_per_sqm'] = clean_df['price']/clean_df['square_meters']
-
 
 
 # #############################################

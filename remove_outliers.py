@@ -1,8 +1,6 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
-from matplotlib import image as mpimg
 
 matplotlib.use('tkagg')
 
@@ -16,7 +14,7 @@ except Exception as e:
 def show_outliers(df):
     columns_names = df.columns.values
 
-    for i in range(len(columns_names)):
+    for i in range(10):
         plt.subplot(2, 5, i + 1)
         plt.boxplot(df[columns_names[i]])
         plt.title(columns_names[i])

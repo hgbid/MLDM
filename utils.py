@@ -13,6 +13,16 @@ ad_highlight = {
     'pink': 2,
     'yellow': 3
 }
+text_keywords = {
+    "safe_room": 'ממ"ד',
+    "elevator": 'מעלית',
+    "parking": 'חניה',
+    "bars": 'סורגים',
+    "air_conditioning": 'מיזוג',
+    "air_conditioner": 'מזגן',
+    "accessible": 'לנכים',
+    "furniture": 'ריהוט'
+}
 
 
 def extract_numbers(s):
@@ -30,3 +40,23 @@ def extract_coordinates(coord_str):
         return coord_dict.get('latitude', 0), coord_dict.get('longitude', 0)
     except (ValueError, SyntaxError):
         return 0, 0
+
+
+def get_data_from_search_text(search_text):
+    result = {key: 0 for key in text_keywords}
+
+    if search_text is None or not isinstance(search_text, str):
+        return result
+
+    parts = search_text.split('כולל')
+    if len(parts) == 1:
+        return result
+
+    for part in parts[1:]:
+        words = part.split()
+        for word in words:
+            for key, keyword in text_keywords.items():
+                if keyword in word:
+                    result[key] = 1
+
+    return result
