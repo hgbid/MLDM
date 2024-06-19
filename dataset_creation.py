@@ -28,13 +28,18 @@ clean_df['condition'] = raw_df['AssetClassificationID_text'].apply(lambda x: con
 # Coordinates
 clean_df['latitude'], clean_df['longitude'] = zip(*raw_df['coordinates'].apply(lambda x: extract_coordinates(x) if pd.notnull(x) else (0, 0)))
 
-# DM from text: safe_room, elevator, parking, bars, air_conditioning, air_conditioner, accessible, furniture
-features_df = raw_df['search_text'].apply(lambda x: pd.Series(get_data_from_search_text(x)))
-clean_df = pd.concat([clean_df, features_df], axis=1)
+
+print(raw_df['feed_source'])
+print(raw_df['HomeTypeID_text'])
+print(raw_df['date_added'])
 
 # #############################################
 # Feature Engineering
 clean_df['price_per_sqm'] = clean_df['price']/clean_df['square_meters']
+
+# DM from text: safe_room, elevator, parking, bars, air_conditioning, air_conditioner, accessible, furniture
+features_df = raw_df['search_text'].apply(lambda x: pd.Series(get_data_from_search_text(x)))
+clean_df = pd.concat([clean_df, features_df], axis=1)
 
 
 # #############################################
