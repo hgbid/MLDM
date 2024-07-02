@@ -34,7 +34,7 @@ for f in range(X_train.shape[1]):
     print(f"{f + 1}. feature {X_train.columns[indices[f]]} ({importances[indices[f]]})")
 
 # Plot the feature importances
-plt.figure()
+plt.figure(figsize=(12, 6))
 plt.title("Feature importances")
 plt.bar(range(X_train.shape[1]), importances[indices], align="center")
 plt.xticks(range(X_train.shape[1]), [X_train.columns[i] for i in indices], rotation=90)
@@ -69,3 +69,45 @@ scores = cross_val_score(rf_selected, X_train_selected, y_train, cv=5, scoring=r
 rmsle_scores = np.sqrt(-scores)  # Convert to positive RMSLE scores
 
 print(f"Cross-validated RMSLE: {rmsle_scores.mean()} ± {rmsle_scores.std()}")
+
+# Plot observed vs predicted prices per sqm
+plt.figure(figsize=(10, 6))
+plt.scatter(y_test, y_pred, alpha=0.3)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
+plt.xlabel('Observed')
+plt.ylabel('Predicted')
+plt.title('Observed vs Predicted Prices per sqm')
+plt.show()
+
+#
+# from sklearn.model_selection import GridSearchCV
+#
+# # Define the parameter grid
+# param_grid = {
+#     'n_estimators': [100, 200, 300],
+#     'max_depth': [None, 10, 20, 30],
+#     'min_samples_split': [2, 5, 10],
+#     'min_samples_leaf': [1, 2, 4],
+#     'bootstrap': [True, False]
+# }
+#
+# # Initialize the GridSearchCV object
+# grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=5, n_jobs=-1, scoring='neg_mean_squared_log_error')
+#
+# # Fit the grid search to the data
+# grid_search.fit(X_train_selected, y_train)
+#
+# # Get the best parameters
+# best_params = grid_search.best_params_
+# print(f"Best parameters: {best_params}")
+#
+# # Train the model with the best parameters
+# best_rf = RandomForestRegressor(**best_params, random_state=42)
+# best_rf.fit(X_train_selected, y_train)
+#
+# # Make predictions with the best model
+# y_pred_best = best_rf.predict(X_test_selected)
+#
+# # Calculate the RMSLE with the best model
+# rmsle_value_best = rmsle(y_test, y_pred_best)
+# print(f"Root Mean Squared Logarithmic Error with the best model: {rmsle_value_best}")

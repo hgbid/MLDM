@@ -10,7 +10,6 @@ except Exception as e:
     print(f"Error reading the CSV file: {e}")
     raise
 
-
 def show_outliers(df):
     columns_names = df.columns.values
 
@@ -20,35 +19,38 @@ def show_outliers(df):
         plt.title(columns_names[i])
     plt.show()
 
-
 show_outliers(cleaned_data)
 
 def print_data_loss(original_size, filtered_size, filter_name):
     loss = original_size - filtered_size
     print(f"Data loss after {filter_name}: {loss} rows")
 
+def apply_iqr_filter(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    filtered_df = df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+    return filtered_df
 
 def apply_filters_and_count_removed_rows(df, filters):
-    filtered_data = df
-    for filter_name, filter_params in filters.items():
-        if 'min' in filter_params:
-            min_val = filter_params['min']
-            filtered_data = filtered_data[filtered_data[filter_name] > min_val]
-        if 'max' in filter_params:
-            max_val = filter_params['max']
-            filtered_data = filtered_data[filtered_data[filter_name] < max_val]
-        rows_removed = df.shape[0] - filtered_data.shape[0]
-        print(f"Removed {rows_removed} rows with filter: {filter_name}")
+    filtered_data = df.copy()
+    for column in filters.keys():
+        original_size = filtered_data.shape[0]
+        filtered_data = apply_iqr_filter(filtered_data, column)
+        filtered_size = filtered_data.shape[0]
+        print_data_loss(original_size, filtered_size, column)
 
     return filtered_data
 
 filters = {
-    'price': {'min': 1, 'max': 20000000},
-    'square_meters': {'min': 1, 'max': 20000},
-    'price_per_sqm': {'min': 1, 'max': 4000},
-    'rooms': {'min': 0, 'max': 20},
-    'latitude': {'min': 0},
-    'longitude': {'min': 0}
+    'price': {},
+    'square_meters': {},
+    'price_per_sqm': {},
+    'rooms': {},
+    'latitude': {},
+    'longitude': {}
 }
 
 initial_size = cleaned_data.shape[0]
