@@ -6,10 +6,13 @@ from sklearn.metrics import r2_score, mean_squared_error
 
 # Reading the CSV file with error handling
 try:
-    cleaned_data = pd.read_csv('../outliers_cleaned_data.csv', encoding='utf-8')
+    cleaned_data = pd.read_csv('../GovData/cleaned_data_gov.csv', encoding='utf-8')
 except Exception as e:
     print(f"Error reading the CSV file: {e}")
     raise
+
+# Drop rows with NaN values
+cleaned_data = cleaned_data.dropna()
 
 # Define the target variable and features
 y = cleaned_data['price_per_sqm']

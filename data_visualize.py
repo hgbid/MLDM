@@ -12,6 +12,9 @@ except Exception as e:
     print(f"Error reading the CSV file: {e}")
     raise
 
+cleaned_data["air_conditioner"] = cleaned_data["air_conditioner"] | cleaned_data["air_conditioning"]
+cleaned_data = cleaned_data.drop(columns=["air_conditioning"])
+
 # Distribution of Prices
 sns.displot(cleaned_data['price'], kde=True, bins=150)
 plt.xlabel('Price')

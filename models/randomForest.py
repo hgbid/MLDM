@@ -7,10 +7,13 @@ from sklearn.metrics import mean_squared_log_error, make_scorer
 
 # Load data
 try:
-    cleaned_data = pd.read_csv('../outliers_cleaned_data.csv', encoding='utf-8')
+    cleaned_data = pd.read_csv('../GovData/outliers_cleaned_data.csv', encoding='utf-8')
 except Exception as e:
     print(f"Error reading the CSV file: {e}")
     raise
+
+# Drop rows with NaN values
+cleaned_data = cleaned_data.dropna()
 
 X = cleaned_data.drop(columns=['price', 'price_per_sqm'])
 y = cleaned_data['price_per_sqm']

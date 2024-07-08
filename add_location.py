@@ -41,7 +41,7 @@ def get_df_with_distance(df, column_string, coor):
     return df
 
 
-file_path = 'outliers_cleaned_data.csv'
+file_path = './GovData/cleaned_data_gov.csv'
 df = pd.read_csv(file_path)
 df = get_df_with_university_distance(df)
 
@@ -60,7 +60,7 @@ locations = {
 for name, coordinates in locations.items():
     df = get_df_with_distance(df, name, coordinates)
 
-df.to_csv("outliers_cleaned_data.csv", index=False)
+df.to_csv("./GovData/cleaned_data_gov.csv", index=False)
 
 '''
 
