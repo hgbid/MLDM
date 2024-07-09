@@ -5,7 +5,7 @@ import pandas as pd
 matplotlib.use('tkagg')
 
 try:
-    cleaned_data = pd.read_csv('cleaned_data.csv', encoding='utf-8')
+    cleaned_data = pd.read_csv('../cleaned_data.csv', encoding='utf-8')
 except Exception as e:
     print(f"Error reading the CSV file: {e}")
     raise
@@ -48,9 +48,6 @@ filters = {
     'price': {},
     'square_meters': {},
     'price_per_sqm': {},
-    'rooms': {},
-    'latitude': {},
-    'longitude': {}
 }
 
 initial_size = cleaned_data.shape[0]

@@ -24,6 +24,10 @@ clean_df['square_meters'] = raw_df['DEALNATURE']
 clean_df['rooms'] = raw_df['ASSETROOMNUM']
 clean_df['floor'] = raw_df['FLOORNO'].apply(lambda x: get_floor_number(x) if pd.notnull(x) else 0)
 
+raw_df['DEALDATE'] = pd.to_datetime(raw_df['DEALDATE'])
+specific_date = pd.to_datetime('2024-06-03')
+clean_df['date'] = (specific_date - raw_df['DEALDATE']).dt.days
+
 # Coordinates
 clean_df['latitude'], clean_df['longitude'] = raw_df['lat'], raw_df['long']
 

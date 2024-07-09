@@ -7,13 +7,19 @@ from sklearn.metrics import mean_squared_log_error, make_scorer
 
 # Load data
 try:
-    cleaned_data = pd.read_csv('../GovData/outliers_cleaned_data.csv', encoding='utf-8')
+    cleaned_data = pd.read_csv('./outliers_cleaned_data_with_predictions.csv', encoding='utf-8')
 except Exception as e:
     print(f"Error reading the CSV file: {e}")
     raise
 
 # Drop rows with NaN values
 cleaned_data = cleaned_data.dropna()
+
+
+correlation_with_ppsm = cleaned_data.corr()['price_per_sqm'].sort_values(ascending=False)
+print("Correlation with 'price_per_sqm':")
+print(correlation_with_ppsm)
+
 
 X = cleaned_data.drop(columns=['price', 'price_per_sqm'])
 y = cleaned_data['price_per_sqm']
@@ -59,7 +65,6 @@ rf_selected.fit(X_train_selected, y_train)
 # Make predictions with the selected features
 y_pred = rf_selected.predict(X_test_selected)
 
-# Calculate the RMSLE
 def rmsle(y_true, y_pred):
     return np.sqrt(mean_squared_log_error(y_true, y_pred))
 
@@ -73,7 +78,6 @@ rmsle_scores = np.sqrt(-scores)  # Convert to positive RMSLE scores
 
 print(f"Cross-validated RMSLE: {rmsle_scores.mean()} ± {rmsle_scores.std()}")
 
-# Plot observed vs predicted prices per sqm
 plt.figure(figsize=(10, 6))
 plt.scatter(y_test, y_pred, alpha=0.3)
 plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
@@ -81,36 +85,3 @@ plt.xlabel('Observed')
 plt.ylabel('Predicted')
 plt.title('Observed vs Predicted Prices per sqm')
 plt.show()
-
-#
-# from sklearn.model_selection import GridSearchCV
-#
-# # Define the parameter grid
-# param_grid = {
-#     'n_estimators': [100, 200, 300],
-#     'max_depth': [None, 10, 20, 30],
-#     'min_samples_split': [2, 5, 10],
-#     'min_samples_leaf': [1, 2, 4],
-#     'bootstrap': [True, False]
-# }
-#
-# # Initialize the GridSearchCV object
-# grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=5, n_jobs=-1, scoring='neg_mean_squared_log_error')
-#
-# # Fit the grid search to the data
-# grid_search.fit(X_train_selected, y_train)
-#
-# # Get the best parameters
-# best_params = grid_search.best_params_
-# print(f"Best parameters: {best_params}")
-#
-# # Train the model with the best parameters
-# best_rf = RandomForestRegressor(**best_params, random_state=42)
-# best_rf.fit(X_train_selected, y_train)
-#
-# # Make predictions with the best model
-# y_pred_best = best_rf.predict(X_test_selected)
-#
-# # Calculate the RMSLE with the best model
-# rmsle_value_best = rmsle(y_test, y_pred_best)
-# print(f"Root Mean Squared Logarithmic Error with the best model: {rmsle_value_best}")
