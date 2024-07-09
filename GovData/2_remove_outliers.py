@@ -1,12 +1,14 @@
+import numpy as np
+
+from utils import *
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-
 matplotlib.use('tkagg')
 
 try:
-    cleaned_data = pd.read_csv('cleaned_data_gov.csv', encoding='utf-8')
+    cleaned_data = pd.read_csv('gov_dataset.csv', encoding='utf-8')
     cleaned_data = cleaned_data.dropna()
 except Exception as e:
     print(f"Error reading the CSV file: {e}")
@@ -62,7 +64,34 @@ show_outliers(outliers_removed_data)
 
 print(f"Final size of cleaned_data after all filters: {outliers_removed_data.shape[0]} rows")
 
-outliers_removed_data.to_csv('outliers_cleaned_data.csv', index=False)
+
+def fill_random_lat_lon(df, column):
+    min_valid = 25
+    max_valid = 40
+    df.loc[(df[column] < min_valid) | (df[column] > max_valid), column] = np.nan
+    print(f"Number of NaN values before random filling in {column}: {df[column].isnull().sum()}")
+
+    min_val = df[column].min()
+    max_val = df[column].max()
+    nan_indices = df[df[column].isna()].index
+    random_values = np.random.uniform(min_val, max_val, len(nan_indices))
+    df.loc[nan_indices, column] = random_values
+    return df
+
+
+outliers_removed_data = fill_random_lat_lon(outliers_removed_data, 'latitude')
+outliers_removed_data = fill_random_lat_lon(outliers_removed_data, 'longitude')
+
+# #############################################
+# Add distant
+clean_df = get_df_with_university_distance(outliers_removed_data)
+for name, coordinates in locations.items():
+    clean_df = get_df_with_distance(clean_df, name, coordinates)
+
+print("Saved cleaned data with added distances to 'clean_gov_dataset.csv'")
+clean_df.to_csv('clean_gov_dataset.csv', index=False)
+
+
 
 # Plotting the displot with IQR range
 sns.displot(cleaned_data['price_per_sqm'], kde=True, bins=150)

@@ -7,7 +7,7 @@ from matplotlib import image as mpimg
 matplotlib.use('tkagg')
 
 try:
-    cleaned_data = pd.read_csv('outliers_cleaned_data.csv', encoding='utf-8')
+    cleaned_data = pd.read_csv('./clean_yad2_dataset.csv', encoding='utf-8')
 except Exception as e:
     print(f"Error reading the CSV file: {e}")
     raise
@@ -20,7 +20,7 @@ plt.title('Distribution of Prices')
 plt.show()
 
 # Apartments on the maps
-img = mpimg.imread('BeershevaMap.png')
+img = mpimg.imread('../BeershevaMap.png')
 lat_min, lat_max = 34.75, 34.82
 lon_min, lon_max = 31.215, 31.3
 plt.imshow(img, extent=[lon_min, lon_max, lat_min, lat_max])

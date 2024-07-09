@@ -44,10 +44,4 @@ clean_df = pd.concat([clean_df, features_df], axis=1)
 clean_df["air_conditioner"] = clean_df["air_conditioner"] | clean_df["air_conditioning"]
 clean_df = clean_df.drop(columns=["air_conditioning"])
 
-# #############################################
-# Add distant
-clean_df = get_df_with_university_distance(clean_df)
-for name, coordinates in locations.items():
-    clean_df = get_df_with_distance(clean_df, name, coordinates)
-
 clean_df.to_csv('./yad2_dataset.csv', index=False)
