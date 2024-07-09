@@ -10,6 +10,7 @@ except Exception as e:
 
 clean_df = pd.DataFrame()
 
+
 # Continuous: Price, Square Meters
 clean_df['price'] = raw_df['price'].str.replace('₪', '').str.replace(',', '')
 clean_df['price'] = clean_df['price'].apply(lambda x: extract_numbers(x) if pd.notnull(x) else 0)
@@ -34,8 +35,15 @@ clean_df['date'] = 0
 # print(raw_df['date_added'])
 
 # #############################################
+
 # Feature Engineering
 clean_df['price_per_sqm'] = clean_df['price']/clean_df['square_meters']
+
+clean_df['HomeTypeID_text'] = raw_df['HomeTypeID_text']
+values_to_remove = ['חניה', 'מגרשים', 'כללי']
+clean_df = clean_df[~clean_df['HomeTypeID_text'].isin(values_to_remove)]
+clean_df = clean_df.drop(columns=["HomeTypeID_text"])
+
 
 # DM from text: safe_room, elevator, parking, bars, air_conditioning, air_conditioner, accessible, furniture
 features_df = raw_df['search_text'].apply(lambda x: pd.Series(get_data_from_search_text(x)))
@@ -43,5 +51,8 @@ clean_df = pd.concat([clean_df, features_df], axis=1)
 
 clean_df["air_conditioner"] = clean_df["air_conditioner"] | clean_df["air_conditioning"]
 clean_df = clean_df.drop(columns=["air_conditioning"])
+
+clean_df['new_building'] = clean_df["safe_room"] | clean_df["elevator"]
+
 
 clean_df.to_csv('./yad2_dataset.csv', index=False)

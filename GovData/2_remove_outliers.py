@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import gaussian_kde
 
 from utils import *
 import matplotlib
@@ -60,27 +61,48 @@ initial_size = cleaned_data.shape[0]
 print(f"Initial size of cleaned_data: {initial_size} rows")
 
 outliers_removed_data, iqr_bounds = apply_filters_and_count_removed_rows(cleaned_data, filters)
+
+
+def fill_random_lat_lon_gaussian(df, column, min_val, max_val, mean, std_dev):
+    # Set values outside the valid range to NaN
+    df.loc[(df[column] < min_val) | (df[column] > max_val), column] = np.nan
+    print(f"Number of NaN values before random filling in {column}: {df[column].isnull().sum()}")
+
+    # Sample random values from a Gaussian distribution within the specified range
+    nan_indices = df[df[column].isna()].index
+    random_values = np.random.normal(mean, std_dev, len(nan_indices))
+
+    # Ensure the sampled values are within the specified range
+    random_values = np.clip(random_values, min_val, max_val)
+
+    # Assign random values to NaN indices
+    df.loc[nan_indices, column] = random_values
+
+    return df
+
+
+# Define the parameters for latitude and longitude
+lat_min, lat_max = 31.23, 31.29
+lon_min, lon_max = 34.75, 34.82
+
+# Calculate mean and standard deviation for latitude and longitude
+lat_mean = (lat_min + lat_max) / 2
+lat_std = (lat_max - lat_min) / 4  # Arbitrary choice of std_dev; adjust as necessary
+
+lon_mean = (lon_min + lon_max) / 2
+lon_std = (lon_max - lon_min) / 4  # Arbitrary choice of std_dev; adjust as necessary
+
+# Apply the function to latitude and longitude columns
+outliers_removed_data = fill_random_lat_lon_gaussian(outliers_removed_data, 'latitude', lat_min, lat_max, lat_mean,
+                                                     lat_std)
+outliers_removed_data = fill_random_lat_lon_gaussian(outliers_removed_data, 'longitude', lon_min, lon_max, lon_mean,
+                                                     lon_std)
+
 show_outliers(outliers_removed_data)
 
 print(f"Final size of cleaned_data after all filters: {outliers_removed_data.shape[0]} rows")
 
 
-def fill_random_lat_lon(df, column):
-    min_valid = 25
-    max_valid = 40
-    df.loc[(df[column] < min_valid) | (df[column] > max_valid), column] = np.nan
-    print(f"Number of NaN values before random filling in {column}: {df[column].isnull().sum()}")
-
-    min_val = df[column].min()
-    max_val = df[column].max()
-    nan_indices = df[df[column].isna()].index
-    random_values = np.random.uniform(min_val, max_val, len(nan_indices))
-    df.loc[nan_indices, column] = random_values
-    return df
-
-
-outliers_removed_data = fill_random_lat_lon(outliers_removed_data, 'latitude')
-outliers_removed_data = fill_random_lat_lon(outliers_removed_data, 'longitude')
 
 # #############################################
 # Add distant

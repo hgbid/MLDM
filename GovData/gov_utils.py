@@ -41,7 +41,6 @@ def get_floor_number(s):
         return int(match.group())
     first = re.split(r'\+|,', s)[0].replace(",", "").replace(".", "")
     if first in number:
-        print(number[first])
         return number[first]
     return number.get(s, None)
 

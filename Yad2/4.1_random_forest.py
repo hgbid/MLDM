@@ -20,7 +20,7 @@ correlation_with_ppsm = cleaned_data.corr()['price_per_sqm'].sort_values(ascendi
 print("Correlation with 'price_per_sqm':")
 print(correlation_with_ppsm)
 
-# cleaned_data = cleaned_data.drop(columns=['gov_prediction'])
+cleaned_data = cleaned_data.drop(columns=['gov_prediction'])
 X = cleaned_data.drop(columns=['price', 'price_per_sqm'])
 y = cleaned_data['price_per_sqm']
 

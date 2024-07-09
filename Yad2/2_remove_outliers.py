@@ -8,7 +8,7 @@ from utils import *
 matplotlib.use('tkagg')
 
 try:
-    cleaned_data = pd.read_csv('../cleaned_data.csv', encoding='utf-8')
+    cleaned_data = pd.read_csv('./yad2_dataset.csv', encoding='utf-8')
 except Exception as e:
     print(f"Error reading the CSV file: {e}")
     raise
@@ -89,4 +89,4 @@ for name, coordinates in locations.items():
     clean_df = get_df_with_distance(clean_df, name, coordinates)
 
 clean_df.to_csv('clean_yad2_dataset.csv', index=False)
-print("Saved cleaned data with added distances to 'outliers_cleaned_data_with_distance.csv'")
+print("Saved cleaned data with added distances to 'clean_yad2_dataset.csv'")
