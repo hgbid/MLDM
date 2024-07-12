@@ -19,7 +19,7 @@ clean_df['square_meters'] = raw_df['square_meters'].apply(lambda x: extract_numb
 # Discrete: Rooms, Floor, Images Count
 clean_df['rooms'] = raw_df['line_1'].apply(lambda x: extract_numbers(x) if pd.notnull(x) else 0)
 clean_df['floor'] = raw_df['line_2'].apply(lambda x: extract_numbers(x) if pd.notnull(x) else 0)
-# clean_df['images_count'] = raw_df['images_count'].apply(lambda x: extract_numbers(x) if pd.notnull(x) else 0)
+clean_df['is_ground'] = (clean_df['floor'] == 0).astype(int)
 
 # Ordinary: is_promoted, condition
 clean_df['is_promoted'] = raw_df['ad_highlight_type'].apply(lambda x: ad_highlight[x] if pd.notnull(x) else 0)
@@ -31,18 +31,21 @@ clean_df['latitude'], clean_df['longitude'] = zip(*raw_df['coordinates'].apply(l
 clean_df['date'] = 0
 
 # print(raw_df['feed_source'])
-# print(raw_df['HomeTypeID_text'])
 # print(raw_df['date_added'])
 
 # #############################################
 
 # Feature Engineering
-clean_df['price_per_sqm'] = clean_df['price']/clean_df['square_meters']
+clean_df['price_per_sqm'] = (clean_df['price']/clean_df['square_meters'])
 
-clean_df['HomeTypeID_text'] = raw_df['HomeTypeID_text']
+clean_df['HomeTypeID_text'] = raw_df['HomeTypeID_text'].fillna('')
+clean_df['is_kottage'] = clean_df['HomeTypeID_text'].str.contains('קוטג').astype(int)
+clean_df['is_penthouse'] = clean_df['HomeTypeID_text'].str.contains('גג').astype(int)
+clean_df['has_yard'] = clean_df['HomeTypeID_text'].str.contains('גן').astype(int)
 values_to_remove = ['חניה', 'מגרשים', 'כללי']
 clean_df = clean_df[~clean_df['HomeTypeID_text'].isin(values_to_remove)]
 clean_df = clean_df.drop(columns=["HomeTypeID_text"])
+clean_df['HomeTypeID_text'] = raw_df['HomeTypeID_text']
 
 
 # DM from text: safe_room, elevator, parking, bars, air_conditioning, air_conditioner, accessible, furniture
@@ -56,3 +59,4 @@ clean_df['new_building'] = clean_df["safe_room"] | clean_df["elevator"]
 
 
 clean_df.to_csv('./yad2_dataset.csv', index=False)
+

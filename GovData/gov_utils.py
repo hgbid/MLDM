@@ -46,12 +46,14 @@ def get_floor_number(s):
 
 
 def extract_numbers(s):
+    print(s)
     if not s:
         return 0
-    numeric_string = re.sub(r'\D', '', str(s))
-    if numeric_string:
-        return int(numeric_string)
-    else:
+    numeric_string = re.sub(r'[^\d.]', '', str(s))
+    try:
+        result = float(numeric_string)
+        return result
+    except ValueError:
         return 0
 
 

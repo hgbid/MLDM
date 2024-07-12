@@ -34,8 +34,8 @@ def apply_iqr_filter(df, column):
     Q1 = df[column].quantile(0.25)
     Q3 = df[column].quantile(0.75)
     IQR = Q3 - Q1
-    lower_bound = Q1 - 1.5 * IQR
-    upper_bound = Q3 + 1.5 * IQR
+    lower_bound = Q1 - 1.0 * IQR
+    upper_bound = Q3 + 1.1 * IQR
     filtered_df = df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
     return filtered_df, lower_bound, upper_bound
 

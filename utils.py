@@ -40,12 +40,15 @@ university_gates_locations = [[31.263289, 34.806142],[31.261085, 34.800446],[31.
 
 
 def extract_numbers(s):
+    print(s)
     if not s:
         return 0
-    numeric_string = re.sub(r'\D', '', str(s))
-    if numeric_string:
-        return int(numeric_string)
-    else:
+    numeric_string = re.sub(r'[^\d.]', '', str(s))
+    try:
+        result = float(numeric_string)
+        print(result)
+        return result
+    except ValueError:
         return 0
 
 def extract_coordinates(coord_str):
