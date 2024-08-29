@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Load training data
 try:
-    train_data = pd.read_csv('./clean_gov_dataset.csv', encoding='utf-8')
+    train_data = pd.read_csv('../Yad2/clean_gov_dataset.csv', encoding='utf-8')
 except Exception as e:
     print(f"Error reading the training CSV file: {e}")
     raise
@@ -26,11 +26,11 @@ test_data = test_data.dropna()
 
 # Prepare training features and target
 X_train = train_data.drop(columns=['price', 'price_per_sqm'])
-y_train = train_data['price_per_sqm']
+y_train = train_data['price']
 
 # Prepare testing features and target
 X_test = test_data.drop(columns=['price', 'price_per_sqm'])
-y_test = test_data['price_per_sqm']
+y_test = test_data['price']
 
 # Ensure that the training and test sets have the same features
 common_features = X_train.columns.intersection(X_test.columns)
@@ -73,8 +73,8 @@ print(f"Mean Squared Error (MSE): {mse_value_xgb}")
 print(f"R-squared (R2): {r2_value_xgb}")
 
 # Calculate the RMSLE
-rmsle_value = np.sqrt(mean_squared_log_error(y_test, y_pred_xgb))
-print(f"Root Mean Squared Logarithmic Error with selected features: {rmsle_value}")
+rmsle_value_xgb = np.sqrt(mean_squared_log_error(y_test, y_pred_xgb))
+print(f"Root Mean Squared Logarithmic Error: {rmsle_value_xgb}")
 
 # Cross-validated RMSLE
 rmsle_scorer = make_scorer(mean_squared_log_error, greater_is_better=False)
@@ -83,11 +83,16 @@ rmsle_scores = np.sqrt(-scores)  # Convert to positive RMSLE scores
 
 print(f"Cross-validated RMSLE: {rmsle_scores.mean()} ± {rmsle_scores.std()}")
 
-# Plot observed vs predicted prices per sqm for XGBoost
+# Plot observed vs predicted prices
 plt.figure(figsize=(10, 6))
 plt.scatter(y_test, y_pred_xgb, alpha=0.3)
 plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
 plt.xlabel('Observed')
 plt.ylabel('Predicted')
-plt.title('Observed vs Predicted Prices per sqm (XGBoost after GridSearchCV)')
+plt.title('Observed vs Predicted Prices')
 plt.show()
+
+# Add the predictions to the original test dataset
+test_data['gov_prediction'] = y_pred_xgb
+test_data.to_csv('yad2_with_predictions.csv', index=False)
+print("Predictions added to the dataset and saved to 'yad2_with_predictions.csv'")

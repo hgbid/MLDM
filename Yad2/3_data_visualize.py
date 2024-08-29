@@ -7,7 +7,7 @@ from matplotlib import image as mpimg
 matplotlib.use('tkagg')
 
 try:
-    cleaned_data = pd.read_csv('./clean_yad2_dataset.csv', encoding='utf-8')
+    cleaned_data = pd.read_csv('./yad2_with_predictions.csv', encoding='utf-8')
 except Exception as e:
     print(f"Error reading the CSV file: {e}")
     raise
@@ -40,8 +40,16 @@ plt.title('Distribution of price_per_sqm (Filtered)')
 plt.show()
 
 # Correlation Bitmap
-cleaned_data_corr = cleaned_data.drop(columns=['latitude', 'longitude']).corr()
+
+cleaned_data_corr = cleaned_data[['price_per_sqm', 'price', 'square_meters',
+                                  'rooms', 'floor', 'is_ground', 'new_building',
+                                   'is_kottage', 'has_yard', 'university_distance',
+                                   'central_station_distance', 'sami_shamoon_distance', 'soroka_distance',
+                                   'north_train_distance', 'center_train_distance', 'grand_mall_distance',
+                                   'old_city_distance','gov_prediction']].corr()
+
 dataplot = sns.heatmap(cleaned_data_corr, cmap="YlGnBu", annot=True)
+plt.xticks(rotation=40, horizontalalignment='right')
 plt.show()
 
 #  Binary features distribution

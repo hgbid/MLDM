@@ -1,3 +1,4 @@
+import optuna
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,7 +8,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 # Load datasets
 try:
-    gov_data = pd.read_csv('./clean_gov_dataset.csv', encoding='utf-8')
+    gov_data = pd.read_csv('../Yad2/clean_gov_dataset.csv', encoding='utf-8')
     gov_data['source'] = 1  # Adding source feature for gov dataset
 except Exception as e:
     print(f"Error reading the gov CSV file: {e}")
@@ -28,7 +29,7 @@ combined_data = combined_data.dropna()
 
 # Prepare features and target
 X = combined_data.drop(columns=['price', 'price_per_sqm'])
-y = combined_data['price_per_sqm']
+y = combined_data['price']
 
 # Ensure that the combined dataset has only common features
 common_features = gov_data.columns.intersection(yad2_data.columns).difference(['price', 'price_per_sqm'])
@@ -57,18 +58,32 @@ plt.xticks(range(X_train.shape[1]), [X_train.columns[i] for i in indices], rotat
 plt.xlim([-1, X_train.shape[1]])
 plt.show()
 
-# Select top N features (e.g., top 10 features)
-N = 10
-top_features = X_train.columns[indices[:N]]
+def objective(trial):
+    param = {
+        'n_estimators': trial.suggest_int('n_estimators', 100, 1000),
+        'max_depth': trial.suggest_int('max_depth', 10, 50),
+        'min_samples_split': trial.suggest_int('min_samples_split', 2, 20),
+        'min_samples_leaf': trial.suggest_int('min_samples_leaf', 1, 20),
+        'max_features': trial.suggest_categorical('max_features', ['sqrt', 'log2']),
+        'bootstrap': trial.suggest_categorical('bootstrap', [True, False]),
+    }
 
-# Reduce the dataset to the top N features
-X_train_selected = X_train[top_features]
-X_test_selected = X_test[top_features]
+    rf_tuned = RandomForestRegressor(random_state=42, **param)
+    scores = cross_val_score(rf_tuned, X_train, y_train, cv=3, scoring='neg_mean_squared_log_error')
+    rmsle_scores = np.sqrt(-scores)
+    return rmsle_scores.mean()
 
-# Initialize the RandomForestRegressor with selected features
-rf_selected = RandomForestRegressor(random_state=42)
-rf_selected.fit(X_train_selected, y_train)
-y_pred = rf_selected.predict(X_test_selected)
+# Optimize hyperparameters using Optuna
+study = optuna.create_study(direction='minimize')
+study.optimize(objective, n_trials=50)
+
+# Get the best parameters and train the model
+best_params = study.best_params
+print("Best parameters found by Optuna:", best_params)
+
+rf_best = RandomForestRegressor(random_state=42, **best_params)
+rf_best.fit(X_train, y_train)
+y_pred = rf_best.predict(X_test)
 
 # Add the predictions to the original test dataset
 combined_data.loc[X_test.index, 'gov_prediction'] = y_pred
@@ -83,10 +98,12 @@ print(f"Root Mean Squared Logarithmic Error with selected features: {rmsle_value
 
 # Cross-validated RMSLE
 rmsle_scorer = make_scorer(mean_squared_log_error, greater_is_better=False)
-scores = cross_val_score(rf_selected, X_train_selected, y_train, cv=5, scoring=rmsle_scorer)
+scores = cross_val_score(rf_best, X_train, y_train, cv=5, scoring=rmsle_scorer)
 rmsle_scores = np.sqrt(-scores)  # Convert to positive RMSLE scores
 
 print(f"Cross-validated RMSLE: {rmsle_scores.mean()} ± {rmsle_scores.std()}")
+mse_value = mean_squared_error(y_test, y_pred)
+print(f"Mean Squared Error: {mse_value}")
 
 # Plot observed vs predicted prices per sqm
 plt.figure(figsize=(10, 6))

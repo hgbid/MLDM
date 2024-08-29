@@ -1,14 +1,14 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, mean_squared_log_error, make_scorer
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 
 # Load training data
 try:
-    train_data = pd.read_csv('./clean_gov_dataset.csv', encoding='utf-8')
+    train_data = pd.read_csv('../Yad2/clean_gov_dataset.csv', encoding='utf-8')
 except Exception as e:
     print(f"Error reading the training CSV file: {e}")
     raise
@@ -26,11 +26,11 @@ test_data = test_data.dropna()
 
 # Prepare training features and target
 X_train = train_data.drop(columns=['price', 'price_per_sqm'])
-y_train = train_data['price_per_sqm']
+y_train = train_data['price']
 
 # Prepare testing features and target
 X_test = test_data.drop(columns=['price', 'price_per_sqm'])
-y_test = test_data['price_per_sqm']
+y_test = test_data['price']
 
 # Ensure that the training and test sets have the same features
 common_features = X_train.columns.intersection(X_test.columns)
@@ -75,6 +75,18 @@ r2_value_svr = r2_score(y_test, y_pred_svr)
 print("SVR Results after GridSearchCV Optimization:")
 print(f"Mean Squared Error (MSE): {mse_value_svr}")
 print(f"R-squared (R2): {r2_value_svr}")
+
+# Calculate the RMSLE
+rmsle_value = np.sqrt(mean_squared_log_error(y_test, y_pred_svr))
+print(f"Root Mean Squared Logarithmic Error with selected features: {rmsle_value}")
+rmsle_scorer = make_scorer(mean_squared_log_error, greater_is_better=False)
+scores = cross_val_score(best_svr, X_train, y_train, cv=5, scoring=rmsle_scorer)
+rmsle_scores = np.sqrt(-scores)  # Convert to positive RMSLE scores
+print(f"Cross-validated RMSLE: {rmsle_scores.mean()} ± {rmsle_scores.std()}")
+# Calculate Mean Squared Error
+mse_value = mean_squared_error(y_test, y_pred_svr)
+print(f"Mean Squared Error: {mse_value}")
+
 
 # Plot observed vs predicted prices per sqm for SVR
 plt.figure(figsize=(10, 6))

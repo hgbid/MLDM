@@ -31,6 +31,9 @@ clean_df['date'] = ((specific_date - raw_df['DEALDATE']).dt.days)//30
 
 # Coordinates
 clean_df['latitude'], clean_df['longitude'] = raw_df['lat'], raw_df['long']
+clean_df['FULLADRESS'] = raw_df['FULLADRESS'].dropna()
+clean_df = clean_df.drop(columns=["FULLADRESS"])
+
 
 # Feature Engineering
 clean_df['price_per_sqm'] = clean_df['price'] / clean_df['square_meters']
@@ -41,7 +44,7 @@ clean_df['new_building'] = raw_df['BUILDINGYEAR'].apply(lambda x: 1 if (pd.notnu
 clean_df['DEALNATUREDESCRIPTION'] =raw_df['DEALNATUREDESCRIPTION'].fillna('')
 values_to_remove = ['חנות','מחסנים','ללא תיכנון','משרד','קרקע למגורים','מסחרי + מגורים','תעשיה']
 clean_df['is_kottage'] = clean_df['DEALNATUREDESCRIPTION'].str.contains('קוטג').astype(int)
-clean_df['is_penthouse'] = clean_df['DEALNATUREDESCRIPTION'].str.contains('גג').astype(int)
+# clean_df['is_penthouse'] = clean_df['DEALNATUREDESCRIPTION'].str.contains('גג').astype(int)
 clean_df['has_yard'] = clean_df['DEALNATUREDESCRIPTION'].str.contains('גן').astype(int)
 clean_df = clean_df[~clean_df['DEALNATUREDESCRIPTION'].isin(values_to_remove)]
 clean_df = clean_df.drop(columns=["DEALNATUREDESCRIPTION"])

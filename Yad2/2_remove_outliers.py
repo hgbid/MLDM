@@ -36,8 +36,8 @@ def apply_iqr_filter(df, column):
     Q1 = df[column].quantile(0.25)
     Q3 = df[column].quantile(0.75)
     IQR = Q3 - Q1
-    lower_bound = Q1 - 1.5 * IQR
-    upper_bound = Q3 + 1.5 * IQR
+    lower_bound = Q1 - 1 * IQR
+    upper_bound = Q3 + 1 * IQR
     filtered_df = df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
     return filtered_df
 
@@ -60,6 +60,7 @@ filters = {
 
 initial_size = cleaned_data.shape[0]
 print(f"Initial size of cleaned_data: {initial_size} rows")
+# cleaned_data = cleaned_data[cleaned_data['price'] < 1750000]
 
 outliers_removed_data = apply_filters_and_count_removed_rows(cleaned_data, filters)
 show_outliers(outliers_removed_data)

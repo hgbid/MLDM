@@ -9,7 +9,7 @@ import seaborn as sns
 matplotlib.use('tkagg')
 
 try:
-    cleaned_data = pd.read_csv('gov_dataset.csv', encoding='utf-8')
+    cleaned_data = pd.read_csv('../Yad2/gov_dataset.csv', encoding='utf-8')
     cleaned_data = cleaned_data.dropna()
 except Exception as e:
     print(f"Error reading the CSV file: {e}")
